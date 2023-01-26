@@ -19,6 +19,7 @@ export class App extends Component {
     targetImage: null,
     isLoading: false,
     error: false,
+    totalImages: 0,
   };
 
   loadMore = () => {
@@ -28,12 +29,10 @@ export class App extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.imageName !== this.state.imageName) {
-      this.setState({ page: 1, images: [] });
-      this.getImages();
-    }
-
-    if (prevState.page !== this.state.page) {
+    if (
+      prevState.imageName !== this.state.imageName ||
+      prevState.page !== this.state.page
+    ) {
       this.getImages();
     }
   }
@@ -49,9 +48,11 @@ export class App extends Component {
           if (totalHits === 0) {
             return Promise.reject(new Error(`No ${imageName} images found`));
           }
+
           this.setState(prevState => ({
             images: [...prevState.images, ...Helpers(hits)],
             error: false,
+            totalImages: totalHits,
           }));
         })
         .catch(error => {
@@ -75,16 +76,20 @@ export class App extends Component {
   };
 
   handleOnForm = imageName => {
-    this.setState({ imageName });
+    this.setState({
+      page: 1,
+      images: [],
+      imageName,
+    });
   };
 
   render() {
-    const { images, targetImage, isLoading, error } = this.state;
+    const { images, targetImage, isLoading, error, totalImages } = this.state;
     return (
       <div className={css.App}>
         <Searchbar onSubmit={this.handleOnForm} />
         <ImageGallery gallery={images} openModal={this.onOpen} />
-        {images.length > 0 && isLoading !== true && (
+        {images.length < totalImages && isLoading !== true && (
           <Button loadMore={this.loadMore} />
         )}
         {isLoading && <Loader />}

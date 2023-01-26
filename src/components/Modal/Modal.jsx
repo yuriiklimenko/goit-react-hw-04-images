@@ -33,11 +33,10 @@ export default class Modal extends Component {
 
   render() {
     const image = this.props.targetImage.image;
-
     return (
       <div className={css.Overlay} onClick={this.handleBackdropClick}>
         <div className={css.Modal}>
-          <img src={image.largeImageURL} alt={image.tags} width="700px"></img>
+          <img src={image.largeImageURL} alt={image.tags}></img>
         </div>
       </div>
     );
