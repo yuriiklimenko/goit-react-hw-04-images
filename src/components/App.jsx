@@ -48,7 +48,6 @@ export class App extends Component {
           if (totalHits === 0) {
             return Promise.reject(new Error(`No ${imageName} images found`));
           }
-
           this.setState(prevState => ({
             images: [...prevState.images, ...Helpers(hits)],
             error: false,
