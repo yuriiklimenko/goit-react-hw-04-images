@@ -1,6 +1,6 @@
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import Modal from './Modal/Modal';
 import Searchbar from './Searchbar/Searchbar';
 import FetchImages from 'services/api';
@@ -10,95 +10,67 @@ import Button from './Button/Button';
 import Loader from './Loader/Loader';
 import css from './App.module.css';
 
-export class App extends Component {
-  state = {
-    showModal: false,
-    images: [],
-    imageName: '',
-    page: 1,
-    targetImage: null,
-    isLoading: false,
-    error: false,
-    totalImages: 0,
+export function App() {
+  const [images, setImages] = useState([]);
+  const [imageName, setImageName] = useState('');
+  const [page, setPage] = useState(1);
+  const [targetImage, setTargetImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [totalImages, setTotalImages] = useState(0);
+
+  const loadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
-  };
+  useEffect(() => {
+    if (imageName) {
+      setIsLoading(true);
 
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      prevState.imageName !== this.state.imageName ||
-      prevState.page !== this.state.page
-    ) {
-      this.getImages();
-    }
-  }
-
-  getImages = () => {
-    this.setState({ isLoading: true });
-
-    const { imageName, page } = this.state;
-
-    if (imageName)
       FetchImages(imageName, page)
         .then(({ hits, totalHits }) => {
           if (totalHits === 0) {
+            setTotalImages(0);
             return Promise.reject(new Error(`No ${imageName} images found`));
           }
-          this.setState(prevState => ({
-            images: [...prevState.images, ...Helpers(hits)],
-            error: false,
-            totalImages: totalHits,
-          }));
+          setTotalImages(totalHits);
+          setImages([...images, ...Helpers(hits)]);
+          setError(false);
         })
         .catch(error => {
-          this.setState(() => ({
-            error: error,
-          }));
+          setError(error);
         })
-        .finally(() => this.setState({ isLoading: false }));
+        .finally(() => setIsLoading(false));
+    }
+  }, [imageName, page]);
+
+  const onOpen = image => {
+    setTargetImage(image);
   };
 
-  onOpen = image => {
-    this.setState({
-      targetImage: image,
-    });
+  const onClose = () => {
+    setTargetImage(null);
   };
 
-  onClose = () => {
-    this.setState({
-      targetImage: null,
-    });
+  const handleOnForm = imageName => {
+    setPage(1);
+    setImages([]);
+    setImageName(imageName);
   };
 
-  handleOnForm = imageName => {
-    this.setState({
-      page: 1,
-      images: [],
-      imageName,
-    });
-  };
-
-  render() {
-    const { images, targetImage, isLoading, error, totalImages } = this.state;
-    return (
-      <div className={css.App}>
-        <Searchbar onSubmit={this.handleOnForm} />
-        <ImageGallery gallery={images} openModal={this.onOpen} />
-        {images.length < totalImages && isLoading !== true && (
-          <Button loadMore={this.loadMore} />
-        )}
-        {isLoading && <Loader />}
-        {error && <h2>{error.message}</h2>}
-        {targetImage && (
-          <Modal targetImage={targetImage} closeModal={this.onClose}></Modal>
-        )}
-
-        <ToastContainer autoClose={3000} />
-      </div>
-    );
-  }
+  return (
+    <div className={css.App}>
+      <Searchbar onSubmit={handleOnForm} />
+      <ImageGallery gallery={images} openModal={onOpen} />
+      {images.length < totalImages && !isLoading && (
+        <Button loadMore={loadMore} />
+      )}
+      {isLoading && <Loader />}
+      {error && <h2>{error.message}</h2>}
+      {targetImage && (
+        <Modal targetImage={targetImage} closeModal={onClose}></Modal>
+      )}
+      <ToastContainer autoClose={3000} />
+    </div>
+  );
 }
