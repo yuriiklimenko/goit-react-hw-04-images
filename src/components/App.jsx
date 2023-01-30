@@ -74,3 +74,8 @@ export function App() {
     </div>
   );
 }
+
+//  Line 45:6:  React Hook useEffect has a missing dependency:
+// 'images'.Either include it or remove the dependency array.
+// You can also do a functional update 'setImages(i => ...)
+// ' if you only need 'images' in the 'setImages' call  react - hooks / exhaustive - deps
