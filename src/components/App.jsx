@@ -34,7 +34,7 @@ export function App() {
             return Promise.reject(new Error(`No ${imageName} images found`));
           }
           setTotalImages(totalHits);
-          setImages([...images, ...Helpers(hits)]);
+          setImages(images => [...images, ...Helpers(hits)]);
           setError(false);
         })
         .catch(error => {
@@ -74,8 +74,3 @@ export function App() {
     </div>
   );
 }
-
-//  Line 45:6:  React Hook useEffect has a missing dependency:
-// 'images'.Either include it or remove the dependency array.
-// You can also do a functional update 'setImages(i => ...)
-// ' if you only need 'images' in the 'setImages' call  react - hooks / exhaustive - deps

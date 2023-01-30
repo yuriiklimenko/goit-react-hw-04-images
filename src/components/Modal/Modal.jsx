@@ -4,17 +4,16 @@ import css from './Modal.module.css';
 
 const Modal = ({ closeModal, targetImage }) => {
   useEffect(() => {
+    const handleKeyDown = e => {
+      if (e.code === 'Escape') {
+        closeModal();
+      }
+    };
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
-
-  const handleKeyDown = e => {
-    if (e.code === 'Escape') {
-      closeModal();
-    }
-  };
+  }, [closeModal]);
 
   const handleBackdropClick = e => {
     if (e.currentTarget === e.target) {
