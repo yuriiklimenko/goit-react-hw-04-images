@@ -11,7 +11,6 @@ const Modal = ({ closeModal, targetImage }) => {
   });
 
   const handleKeyDown = e => {
-    console.log(e.code);
     if (e.code === 'Escape') {
       closeModal();
     }
